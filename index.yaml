@@ -1,0 +1,27 @@
+apiVersion: v1
+entries:
+  terakube:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-10-19T14:52:58.046065147Z"
+    description: Terakube — autonomous Kubernetes cost optimization (core + UI) with
+      EFS persistence
+    digest: 02c945309157af2c57dab72f8a6a40f7e513d7a3e9967ae97c080445db3cbb5b
+    keywords:
+    - kubernetes
+    - cost-optimization
+    - ML/AI
+    - finops
+    - autoscaling
+    - Nodes/Workloads Right-Sizings
+    - gpus
+    - eks
+    - aks
+    maintainers:
+    - name: Terakube
+    name: terakube
+    type: application
+    urls:
+    - https://terakube.github.io/terakube-charts/terakube-1.0.0.tgz
+    version: 1.0.0
+generated: "2026-10-19T14:52:58.04485996Z"
