@@ -53,7 +53,7 @@ See `values.yaml`. Key ones: `storage.fileSystemId`, `storage.create`,
 ```bash
 ./uninstall.sh            # guided: helm uninstall + optional AWS/EFS teardown
 # or just the release:
-helm uninstall terakube-lite -n terakube-core
+helm uninstall terakube -n terakube-core
 ```
 `uninstall.sh` removes the release, then (after an explicit, typed confirmation)
 can tear down the EFS filesystem + mount targets, the NFS security group, the
