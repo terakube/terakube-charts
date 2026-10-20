@@ -44,10 +44,6 @@ helm upgrade --install terakube . \
 `helm`, `kubectl`; for EFS setup also `aws`, `jq` (and `eksctl` optional).
 The aws-efs-csi-driver add-on is installed by the EFS step.
 
-## Values
-See `values.yaml`. Key ones: `storage.fileSystemId`, `storage.create`,
-`storage.className`, `core.image`, `ui.image`, `ui.backendUrl`, `ml.image`,
-`serviceAccount.roleArn`.
 
 ## Uninstall
 ```bash
