@@ -19,6 +19,10 @@ set -euo pipefail
 
 CLUSTER_NAME="${1:?cluster name required}"
 AWS_REGION="${2:?aws region required}"
+# Optional 3rd arg: an EXISTING EFS filesystem id. When given, we validate and
+# reuse it (never create a new one) but still ensure the OIDC provider, EFS-CSI
+# IAM role, driver add-on and per-AZ mount targets exist for it.
+EXISTING_FS_ID="${3:-}"
 EFS_NAME="terakube-efs-${CLUSTER_NAME}"
 CSI_ROLE_NAME="terakube-efs-csi-role-${CLUSTER_NAME}"
 CSI_SA_NS="kube-system"
@@ -115,6 +119,17 @@ fi
 # 4. EFS filesystem (reuse by name tag if it already exists)
 # ---------------------------------------------------------------------------
 log "[4/6] Ensuring EFS filesystem ($EFS_NAME)..."
+if [[ -n "$EXISTING_FS_ID" ]]; then
+  # Caller supplied an existing filesystem id — validate it and reuse it.
+  # We must NOT create a new filesystem in this mode.
+  FS_STATE="$(aws efs describe-file-systems --region "$AWS_REGION" --file-system-id "$EXISTING_FS_ID" \
+    --query 'FileSystems[0].LifeCycleState' --output text 2>/dev/null || echo "None")"
+  if [[ -z "$FS_STATE" || "$FS_STATE" == "None" ]]; then
+    log "ERROR: EFS filesystem '$EXISTING_FS_ID' not found in region $AWS_REGION"; exit 1
+  fi
+  FS_ID="$EXISTING_FS_ID"
+  log "  Using existing filesystem $FS_ID (state=$FS_STATE)"
+else
 FS_ID="$(aws efs describe-file-systems --region "$AWS_REGION" \
   --query "FileSystems[?Name=='${EFS_NAME}'].FileSystemId | [0]" --output text 2>/dev/null || echo "None")"
 if [[ -z "$FS_ID" || "$FS_ID" == "None" ]]; then
@@ -130,6 +145,7 @@ if [[ -z "$FS_ID" || "$FS_ID" == "None" ]]; then
   done
 else
   log "  Reusing filesystem $FS_ID"
+fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -252,3 +268,4 @@ done
 # ---------------------------------------------------------------------------
 log "[6/6] EFS ready."
 echo "FS_ID=${FS_ID}"
+

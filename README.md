@@ -21,10 +21,12 @@ provisions all EFS/IAM prerequisites, and wires the core's least-privilege IAM
 3. **After** the app is deployed, runs `scripts/terakube-irsa-setup.sh` to create
    the core's scoped IAM role (nodegroups and/or Karpenter) and annotate the
    ServiceAccount.
+4. **Finally** get the terakube-ui svc by the command "kubectl -n terakube-core get svc terakube-ui",
+   copy the loadbalancer external-ip on your browser and start exploring.
 
 ## Install
 ```bash
-./install.sh                 # interactive (recommended) make sure to update the HELMURL with the latest helm package version
+./install.sh                 
 # or a named release:
 ./install.sh my-release
 ```
@@ -36,20 +38,20 @@ helm upgrade --install terakube . \
   --set storage.fileSystemId=fs-xxxxxxxx
 ```
 
-## Components & requirements honored
-- **core** (`terakube-core`, Go, MongoDB embedded): EFS-backed at `/data/db`,
-  `Recreate` strategy (single writer), **no environment variables**.
-
 ## Prerequisites
 `helm`, `kubectl`; for EFS setup also `aws`, `jq` (and `eksctl` optional).
 The aws-efs-csi-driver add-on is installed by the EFS step.
 
+## Values
+See `values.yaml`. Key ones: `storage.fileSystemId`, `storage.create`,
+`storage.className`, `core.image`, `ui.image`, `ui.backendUrl`, `ml.image`,
+`serviceAccount.roleArn`.
 
 ## Uninstall
 ```bash
 ./uninstall.sh            # guided: helm uninstall + optional AWS/EFS teardown
 # or just the release:
-helm uninstall terakube -n terakube-core
+helm uninstall terakube-lite -n terakube-core
 ```
 `uninstall.sh` removes the release, then (after an explicit, typed confirmation)
 can tear down the EFS filesystem + mount targets, the NFS security group, the
